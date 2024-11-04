@@ -1,0 +1,73 @@
+pointset
+
+figure;
+hold on;
+axis equal;
+axis ([-10 10 -10 10 ]);
+grid on;
+xlabel('X-axis');
+ylabel('Y-axis');
+title('Trishear forward model');
+
+trajectoryxf = zeros(1, time_steps);
+trajectoryyf = zeros(1, time_steps);
+
+for t = 1:time_steps
+    for i = 1:num_bed
+        x_layer = x_matrix(i,:);
+        y_layer = y_matrix(i,:);
+
+        for j = 1:length(x_layer)
+            x_value = x_layer(j);
+            y_value = y_layer(j);
+            
+            if y_value <= -tan(ramp-b) * (x_value - xf) + yf && y_value < -tan(ramp) * x_value
+                
+            elseif  y_value < -tan(ramp+a) * (x_value - xf) + yf && y_value > -tan(ramp-b) * (x_value - xf) + yf
+                u = -(yf - y_value) / (xf - x_value);
+                w = ramp - atan(u);
+                x_value = x_value + vx* ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                y_value = y_value + vy * ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            
+            else
+                x_value= x_value + vx; 
+                y_value = y_value + vy;
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            end
+        end
+        x_matrix(i,:) = x_layer;
+        y_matrix(i,:)= y_layer;
+
+    end
+
+    % (xf, yf) の移動
+    xf = xf + ps * vx;
+    yf = yf + ps * vy;
+
+    % 軌跡を記録
+    trajectoryxf(t) = xf;
+    trajectoryyf(t) = yf;
+
+    % プロット
+    clf; % 前のフレームをクリア
+    hold on;
+    for i = 1:num_bed
+        plot(x_matrix(i,:), y_matrix(i,:), 'b.'); % 各層の点を青でプロット
+    end
+    plot(xf, yf, 'ro', 'MarkerSize', 10); % (xf, yf) を赤でプロット
+    plot(trajectoryxf(1:t), trajectoryyf(1:t), 'r--', 'LineWidth', 1.5); % 軌跡を赤の破線でプロット
+
+    axis equal;
+    grid on;
+ 
+    xlabel('X-axis');
+    ylabel('Y-axis');
+    title('Trishear forward model');
+    drawnow; % 更新を描画
+    pause(0.01); % 速度調整
+end
+
+hold off;
