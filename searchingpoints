@@ -1,0 +1,50 @@
+closest_points = zeros(size(observed_points));
+ra=zeros(size(observed_points,1),1);
+
+for m = 1:length(X)
+    x_obs = X(m);
+    y_obs = Y(m);
+    obs_point = [x_obs, y_obs];
+    
+    min_distance = Inf;
+    nearest_point = [NaN, NaN];
+    radwinps=[NaN];
+    
+    for i = 1:num_bed
+        X_layer = x_matrix(i,:);
+        Y_layer = y_matrix(i,:);
+
+        for j = 1:length(X_layer)
+            X_value = X_layer(j);
+            Y_value = Y_layer(j);
+            distance = norm(X_value-x_obs,Y_value-y_obs);
+
+            if distance < min_distance
+               min_distance = distance;
+               nearest_point = [X_value, Y_value];
+               switch j
+                case 1
+                    X_value1=X_layer(j+1);
+                    Y_value1=Y_layer(j+1);
+                    ra_value=atan((Y_value1-Y_value)/(X_value1-X_value));
+                case length(X_layer)
+                    X_value2=X_layer(j-1);
+                    Y_value2=Y_layer(j-1);
+                    ra_value=atan((Y_value2-Y_value)/(X_value2-X_value));
+                otherwise
+                    X_value1=X_layer(j+1);
+                    Y_value1=Y_layer(j+1);
+                    X_value2=X_layer(j-1);
+                    Y_value2=Y_layer(j-1);
+                    ra_value1=atan((Y_value1-Y_value)/(X_value1-X_value));
+                    ra_value2=atan((Y_value2-Y_value)/(X_value2-X_value));
+                    ra_value=(ra_value1+ra_value2)/2;
+            end
+               radwinps=[ra_value];
+            end
+        end
+    end
+   
+    closest_points(m, :) = nearest_point;
+    ra(m,:)=radwinps;
+end
