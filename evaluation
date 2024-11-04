@@ -1,0 +1,10 @@
+function [best_score,best_param]=evaluation(RA, ra, param_set, best_score, best_param)
+
+    score=norm(RA-ra);
+    
+    if score<best_score
+    best_score=score;
+    best_param=param_set;
+    end
+
+end
