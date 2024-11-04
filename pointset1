@@ -1,0 +1,10 @@
+num_bed=20;
+
+x_range=-5:0.5:30;
+
+x_matrix=repmat(x_range,num_bed,1);
+y_matrix=zeros(num_bed,length(x_matrix));
+
+for i=1:num_bed
+    y_matrix(i,:)=(i-18)/2;
+end
