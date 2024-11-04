@@ -6,7 +6,7 @@ for n=1:length(param_comb);
     b=param_set(2);
     displacement=param_set(3);
     ps=param_set(4);
-    xf=param_set(5);
+    xf=param_set(5);　
 
     paraset;
     pointset1;
