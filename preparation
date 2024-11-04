@@ -1,0 +1,23 @@
+preparation;
+for n=1:length(param_comb);
+
+    param_set=param_comb(n,:);
+    a=param_set(1);
+    b=param_set(2);
+    displacement=param_set(3);
+    ps=param_set(4);
+    xf=param_set(5);
+
+    paraset;
+    pointset1;
+    layersmoving;
+    searchingpoints;
+    
+    [best_score,best_param]=evaluation(RA, ra, param_set, best_score, best_param);
+   
+end
+
+disp('best_score=')
+disp(best_score)
+disp('最適パラメータセット（a, b, displacement, ps, xf）=')
+disp (best_param)
