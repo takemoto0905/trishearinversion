@@ -1,0 +1,11 @@
+%input a,b,xf,P/S(=ps),displacement,xf
+
+ramp=29*pi/180;
+time_steps=200;
+
+a=a*pi/180;
+b=b*pi/180;
+v=displacement/time_steps;
+vx=-v*cos(ramp);
+vy=v*sin(ramp);
+yf=-tan(ramp)*xf;
