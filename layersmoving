@@ -1,0 +1,36 @@
+
+for t = 1:time_steps
+    for i = 1:num_bed
+        x_layer = x_matrix(i,:);
+        y_layer = y_matrix(i,:);
+
+        for j = 1:length(x_layer)
+            x_value = x_layer(j);
+            y_value = y_layer(j);
+            
+            if y_value <= -tan(ramp-b) * (x_value - xf) + yf && y_value < -tan(ramp) * x_value
+                
+            elseif  y_value < -tan(ramp+a) * (x_value - xf) + yf && y_value > -tan(ramp-b) * (x_value - xf) + yf
+                u = -(yf - y_value) / (xf - x_value);
+                w = ramp - atan(u);
+                x_value = x_value + vx* ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                y_value = y_value + vy * ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            
+            else
+                x_value= x_value + vx; 
+                y_value = y_value + vy;
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            end
+        end
+        x_matrix(i,:) = x_layer;
+        y_matrix(i,:)= y_layer;
+
+    end
+
+    xf=xf+ps*vx;
+    yf=yf+ps*vy;
+    
+end
