@@ -1,0 +1,18 @@
+%input a,b,displacement,ps,xf
+
+load 'observedbed.txt'
+X = observedbed(:, 1);
+Y = observedbed(:, 2);
+RA = observedbed(:, 3);
+observed_points = [X, Y];
+best_score = inf;
+
+paraset
+pointset
+layersmoving
+searchingpoints
+
+score=norm(RA-ra);
+
+disp('score=')
+disp(score)
