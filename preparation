@@ -1,0 +1,18 @@
+clear all
+a=10:5:50;
+b=6:3:15;
+displacement=1:0.2:20;
+ps=1:0.2:5;
+xf=1:0.5:10;
+
+[P1, P2, P3, P4, P5]=ndgrid(a, b, displacement, ps, xf);
+param_comb = [P1(:), P2(:), P3(:), P4(:), P5(:)];
+
+load 'observedbed.txt'
+X = observedbed(:, 1);
+Y = observedbed(:, 2);
+RA = observedbed(:, 3);
+observed_points = [X, Y];
+
+best_score = inf;
+best_param = [];
