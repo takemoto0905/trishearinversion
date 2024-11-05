@@ -3,7 +3,7 @@ pointset
 figure;
 hold on;
 axis equal;
-axis ([-10 10 -10 10 ]);
+axis ([-20 40 -20 20 ]);
 grid on;
 xlabel('X-axis');
 ylabel('Y-axis');
@@ -43,31 +43,35 @@ for t = 1:time_steps
 
     end
 
-    % (xf, yf) の移動
     xf = xf + ps * vx;
     yf = yf + ps * vy;
 
-    % 軌跡を記録
     trajectoryxf(t) = xf;
     trajectoryyf(t) = yf;
 
-    % プロット
-    clf; % 前のフレームをクリア
+    clf;
     hold on;
+
     for i = 1:num_bed
-        plot(x_matrix(i,:), y_matrix(i,:), 'b.'); % 各層の点を青でプロット
+        plot(x_matrix(i,:), y_matrix(i,:), 'b.');
     end
-    plot(xf, yf, 'ro', 'MarkerSize', 10); % (xf, yf) を赤でプロット
-    plot(trajectoryxf(1:t), trajectoryyf(1:t), 'r--', 'LineWidth', 1.5); % 軌跡を赤の破線でプロット
+    plot(xf, yf, 'ro', 'MarkerSize', 10); 
+    plot(trajectoryxf(1:t), trajectoryyf(1:t), 'r--', 'LineWidth', 1.5);
+    y_line1 = -tan(ramp - b) * (x_line - xf) + yf;
+    y_line2 = -tan(ramp + a) * (x_line - xf) + yf;
+    plot(x_line, y_line1, 'g', 'LineWidth', 1);
+    plot(x_line, y_line2, 'g', 'LineWidth', 1);
+
 
     axis equal;
     grid on;
  
     xlabel('X-axis');
     ylabel('Y-axis');
-    title('Trishear forward model');
-    drawnow; % 更新を描画
-    pause(0.01); % 速度調整
+    title('Trishear model');
+    drawnow;
+    pause(0.01);
 end
 
 hold off;
+
