@@ -1,0 +1,101 @@
+pointset1
+
+load 'observedbed.txt'
+X = observedbed(:, 1);
+Y = observedbed(:, 2);
+observed_points = [X, Y];
+
+% ビデオライターの設定
+video_filename = 'trishear_animation1.mp4'; % ファイル名
+video_obj = VideoWriter(video_filename, 'MPEG-4');
+video_obj.FrameRate = 30; % フレームレート
+open(video_obj);
+
+figure;
+hold on;
+axis equal;
+axis([-5 10 -5 5]); % 描画範囲を固定
+grid on;
+xlabel('X-axis');
+ylabel('Y-axis');
+title('Trishear forward model');
+
+trajectoryxf = zeros(1, time_steps);
+trajectoryyf = zeros(1, time_steps);
+
+% プロット要素の管理
+layer_plots = gobjects(1, num_bed);
+trajectory_plot = plot(NaN, NaN, 'r', 'LineWidth', 1.5);
+fault_tip_plot = plot(NaN, NaN, 'ro', 'MarkerSize', 10);
+boundary_plot1 = plot(NaN, NaN, 'g', 'LineWidth', 1);
+boundary_plot2 = plot(NaN, NaN, 'g', 'LineWidth', 1);
+observed_plot = plot(X, Y, 'ko', 'MarkerSize', 5, 'MarkerFaceColor', 'k');
+
+for t = 1:time_steps
+    for i = 1:num_bed
+        x_layer = x_matrix(i,:);
+        y_layer = y_matrix(i,:);
+
+        for j = 1:length(x_layer)
+            x_value = x_layer(j);
+            y_value = y_layer(j);
+            
+            if y_value <= -tan(ramp - b) * (x_value - xf) + yf && y_value < -tan(ramp) * x_value
+                % 範囲外: 移動なし
+            elseif y_value < -tan(ramp + a) * (x_value - xf) + yf && y_value > -tan(ramp - b) * (x_value - xf) + yf
+                % シアゾーン内: 修正速度適用
+                u = -(yf - y_value) / (xf - x_value);
+                w = ramp - atan(u);
+                x_value = x_value + vx * ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                y_value = y_value + vy * ((tan(b) - tan(w)) / (tan(b) + tan(a)));
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            else
+                % 範囲外: 基本速度で移動
+                x_value = x_value + vx;
+                y_value = y_value + vy;
+                x_layer(j) = x_value;
+                y_layer(j) = y_value;
+            end
+        end
+        x_matrix(i,:) = x_layer;
+        y_matrix(i,:) = y_layer;
+    end
+
+    % Fault tipの位置を更新
+    xf = xf + ps * vx;
+    yf = yf + ps * vy;
+
+    % Fault tipの軌跡を保存
+    trajectoryxf(t) = xf;
+    trajectoryyf(t) = yf;
+
+    % 各プロットを更新
+    for i = 1:num_bed
+        if isgraphics(layer_plots(i))
+            delete(layer_plots(i));
+        end
+        layer_plots(i) = plot(x_matrix(i,:), y_matrix(i,:), 'b.');
+    end
+    set(fault_tip_plot, 'XData', xf, 'YData', yf);
+    set(trajectory_plot, 'XData', trajectoryxf(1:t), 'YData', trajectoryyf(1:t));
+
+    % Shear zone境界線を更新
+    x_line1 = xf:(-0.1):-10;
+    x_line2 = xf:(-0.1):-10;
+    y_line1 = -tan(ramp - b) * (x_line1 - xf) + yf;
+    y_line2 = -tan(ramp + a) * (x_line2 - xf) + yf;
+    set(boundary_plot1, 'XData', x_line1, 'YData', y_line1);
+    set(boundary_plot2, 'XData', x_line2, 'YData', y_line2);
+
+    % フレームをビデオに書き込む
+    frame = getframe(gcf);
+    writeVideo(video_obj, frame);
+
+    % 描画の更新
+    drawnow;
+end
+
+% ビデオライターを閉じる
+close(video_obj);
+hold off;
